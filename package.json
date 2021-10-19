@@ -2,12 +2,15 @@
   "name": "hypernews",
   "type": "module",
   "dependencies": {
-    "hyperswarm": "next",
-    "corestore": "next",
+    "ansi-escapes": "^5.0.0",
     "autobase": "github:hypercore-skunkworks/autobase",
+    "colorette": "^2.0.16",
+    "corestore": "next",
+    "hyperbee": "latest",
+    "hyperswarm": "next",
     "lexicographic-integer": "latest",
-    "minimist": "latest",
-    "hyperbee": "latest"
+    "menu-string": "^1.3.0",
+    "minimist": "latest"
   },
   "description": "> How to use Hypercore and Hyperswam to create a multiwriter p2p system",
   "version": "1.0.0",

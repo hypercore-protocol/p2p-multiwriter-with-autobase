@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+import readline from 'readline'
 import Autobase from 'autobase'
 import Corestore from 'corestore'
 import Hyperswarm from 'hyperswarm'
@@ -7,11 +7,14 @@ import Hyperbee from 'hyperbee'
 import crypto from 'crypto'
 import lexint from 'lexicographic-integer'
 import minimist from 'minimist'
+import esc from 'ansi-escapes'
+import Menu from 'menu-string'
+import { bold, inverse } from 'colorette'
 
 const topic = Buffer.from(sha256('cool-app-2'), 'hex')
 
 const argv = minimist(process.argv.slice(2), {
-  alias: { writers: 'w', indexes: 'i', storage: 's', }
+  alias: { writers: 'w', indexes: 'i', storage: 's' }
 })
 
 const store = new Corestore(argv.storage || './links')
@@ -82,35 +85,118 @@ process.once('SIGINT', () => swarm.destroy())
 await swarm.flush()
 console.log('Swarm is flushed.')
 
-if (argv.post) {
-  await base.append(JSON.stringify({ type: 'post', hash: sha256(argv.post), data: argv.post }))
-  console.log('Posted!')
+if (argv.ui) {
+  await ui()
+} else {
+  if (argv.post) {
+    await base.append(JSON.stringify({ type: 'post', hash: sha256(argv.post), data: argv.post }))
+    console.log('Posted!')
+  }
+  if (argv.up) {
+    await base.append(JSON.stringify({ type: 'vote', hash: argv.up, up: true }))
+    console.log('Upvoted :)')
+  }
+  if (argv.down) {
+    await base.append(JSON.stringify({ type: 'vote', hash: argv.down, up: false }))
+    console.log('Downvoted :(')
+  }
+  if (argv.top) print(top())
+  if (argv.all) print(all())
+  await index.update()
 }
-if (argv.up) {
-  await base.append(JSON.stringify({ type: 'vote', hash: argv.up, up: true }))
-  console.log('Upvoted :)')
-}
-if (argv.down) {
-  await base.append(JSON.stringify({ type: 'vote', hash: argv.down, up: false }))
-  console.log('Downvoted :(')
-}
-if (argv.top) {
+
+async function * top () {
   for await (const data of bee.createReadStream({ gt: 'top!', lt: 'top!~', reverse: true })) {
-    print(await bee.get('posts!' + data.value))
+    yield await bee.get('posts!' + data.value)
   }
 }
-if (argv.all) {
+
+async function * all () {
   for await (const data of bee.createReadStream({ gt: 'posts!', lt: 'posts!~' })) {
-    print(data)
+    yield data
   }
 }
 
-await index.update()
-
-function print (data) {
-  if (data) console.log(data.key.split('!').pop() + ':', data.value)
+async function print (data) {
+  if (data) {
+    if (data[Symbol.asyncIterator]) {
+      const iter = data[Symbol.asyncIterator]()
+      for await (const data of iter) print(data)
+      return
+    }
+    console.log(data.key.split('!').pop() + ':', data.value)
+  }
 }
 
 function sha256 (data) {
   return crypto.createHash('sha256').update(data).digest('hex')
+}
+
+async function ui () {
+  process.stdout.write(esc.clearScreen)
+  process.stdin.setRawMode(true)
+  readline.emitKeypressEvents(process.stdin)
+  const spread = async (iter) => {
+    const items = []
+    for await (const item of iter) items.push(item)
+    return items
+  }
+  console.log(`Key: ${bold('a')} - all  ${bold('t')} - top  ${bold('u')} - upvote  ${bold('d')} - downvote`)
+  process.stdout.write(esc.cursorHide)
+  process.on('exit', () => process.stdout.write(esc.cursorShow))
+
+  process.stdin.on('keypress', async (ch, key) => {
+    if (key.name === 'c' && key.ctrl) {
+      console.log('\nShutting down..')
+      await swarm.destroy()
+      process.exit(127)
+    }
+    if (key.name === 'up') menu.up()
+    if (key.name === 'down') menu.down()
+    if (key.name === 'u' || key.name === 'd') {
+      const item = menu.selected()
+      await base.append(JSON.stringify({ type: 'vote', hash: item.key.split('posts!')[1], up: key.name === 'u' }))
+      await index.update()
+      menu = await createMenu()
+      menu.select(item.index)
+      renderMenu()
+    }
+    if (key.name === 't' || key.name === 'a') {
+      posts = key.name === 't' ? top : all
+      const item = menu.selected()
+      await index.update()
+      menu = await createMenu()
+      menu.select(item.index)
+      renderMenu()
+    }
+  })
+
+  const createMenu = async () => {
+    const menu = new Menu({
+      items: await spread(posts()),
+      render (item, selected) {
+        const { votes, data } = item.value
+        const text = `${data} [${votes}]`
+        return selected ? inverse(text) : text
+      }
+    })
+    menu.on('update', renderMenu)
+    return menu
+  }
+
+  let posts = top
+  let menu = await createMenu()
+
+  process.stdout.write(esc.cursorSavePosition)
+  process.stdout.write('\n')
+  process.stdout.write(bold('# Top\n'))
+  process.stdout.write(menu.toString())
+
+  async function renderMenu () {
+    process.stdout.write(esc.cursorRestorePosition)
+    process.stdout.write(esc.eraseDown)
+    process.stdout.write(esc.cursorDown(1))
+    process.stdout.write(bold(posts === top ? '# Top' : '# All') + '\n')
+    process.stdout.write(menu.toString())
+  }
 }
