@@ -132,15 +132,23 @@ function sha256 (data) {
   return crypto.createHash('sha256').update(data).digest('hex')
 }
 
-async function ui () {
+async function spread (iter) {
+  const items = []
+  for await (const item of iter) items.push(item)
+  return items
+}
+
+async function ui (posts = top) {
+  const items = await spread(posts())
+  if (items.length === 0) {
+    console.log('No posts to display in ui!')
+    process.exit(1)
+  }
+
   process.stdout.write(esc.clearScreen)
   process.stdin.setRawMode(true)
   readline.emitKeypressEvents(process.stdin)
-  const spread = async (iter) => {
-    const items = []
-    for await (const item of iter) items.push(item)
-    return items
-  }
+
   console.log(`Key: ${bold('a')} - all  ${bold('t')} - top  ${bold('u')} - upvote  ${bold('d')} - downvote`)
   process.stdout.write(esc.cursorHide)
   process.on('exit', () => process.stdout.write(esc.cursorShow))
@@ -173,7 +181,7 @@ async function ui () {
 
   const createMenu = async () => {
     const menu = new Menu({
-      items: await spread(posts()),
+      items: items,
       render (item, selected) {
         const { votes, data } = item.value
         const text = `${data} [${votes}]`
@@ -184,7 +192,7 @@ async function ui () {
     return menu
   }
 
-  let posts = top
+  
   let menu = await createMenu()
 
   process.stdout.write(esc.cursorSavePosition)
