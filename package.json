@@ -1,0 +1,12 @@
+{
+  "name": "hypernews",
+  "type": "module",
+  "dependencies": {
+    "hyperswarm": "next",
+    "corestore": "next",
+    "autobase": "hypercore-skunkworks/autobase",
+    "lexicographic-integer": "latest",
+    "minimist": "latest",
+    "hyperbee": "latest"
+  }
+}
