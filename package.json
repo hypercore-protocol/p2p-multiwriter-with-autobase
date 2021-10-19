@@ -4,9 +4,27 @@
   "dependencies": {
     "hyperswarm": "next",
     "corestore": "next",
-    "autobase": "hypercore-skunkworks/autobase",
+    "autobase": "github:hypercore-skunkworks/autobase",
     "lexicographic-integer": "latest",
     "minimist": "latest",
     "hyperbee": "latest"
-  }
+  },
+  "description": "> How to use Hypercore and Hyperswam to create a multiwriter p2p system",
+  "version": "1.0.0",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hypercore-protocol/hypernews.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hypercore-protocol/hypernews/issues"
+  },
+  "homepage": "https://github.com/hypercore-protocol/hypernews#readme"
 }
