@@ -19,8 +19,11 @@ Say you have two users, each with their own Hypercores, who want to chat with ea
 ```js
 import Hypercore from 'hypercore'
 import Autobase from 'autobase'
+import ram from 'random-access-memory'
 
 // Create two chat users, each with their own Hypercores.
+// Here since we'll be rerunning the same code a lot, we'll use the ram storage
+
 const store = new Corestore(ram)
 const userA = store.get({ name: 'userA' })
 const userB = store.get({ name: 'userB' })
@@ -44,6 +47,7 @@ await baseB.append('B0: hi! good to hear from you')
 await baseA.append('A1: likewise. fun exercise huh?')
 await baseB.append('B1: yep. great time.')
 
+// Let's print all messages in causal order
 for await (const node of baseA.createCausalStream()) {
   console.log(node.value.toString())
 }
@@ -88,7 +92,8 @@ Since we have two independent forks, you should see either A's fork or B's fork 
 Let's say A and B have been on independent forks for a while now, then they finally reconnect and A writes a new chat message that causally links to both forks. Immediately after that, they disconnect again and start forking once more. What happens to the ordering?
 
 To simulate this, only one additional `append` is necessary. Extend the previous example with the following `append` containing the latest clock:
-```
+```js
+// note that this append links the clocks of the previous ones
 await baseB.append('B7: looks like we\'re both online!')
 ```
 
