@@ -8,7 +8,7 @@ For now, let's go through what ordering means in the context of Autobase by buil
 
 ## Setup
 
-First, create a module with an `index.js` and make sure to install the following dependencies:
+As with the previous exercises, first create a module with `type: module` and an `index.js` and make sure to install the following dependencies:
 ```
 npm i corestore@next autobase random-access-memory chalk
 ```
@@ -102,4 +102,6 @@ await baseB.append('B8: hello?', [])
 
 The two new forks are at the "tip" of the causal stream, and everything behind B7 remains the same. This property will be extremely useful in the next section, where we show how causal streams can be used to generate indexes over Autobase inputs.
 
-Autobase itself is quite unopinionated about what kinds of blocks are in the input Hypercores, and with what you do with the output indexes, but we've found it useful to use it in combination with an "event sourcing" pattern, where the input hypercores are treated as operation logs, and those operations are reduced into an output index.
+## Next Up: Indexing
+
+Now that you've seen how Autobase can generate a deterministic ordering over messages in many input Hypercores, we'll walk through how to make use of that ordering to generate shareable, Hypercore-based indexes over those inputs.
