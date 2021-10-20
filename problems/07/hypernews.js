@@ -71,7 +71,6 @@ class Hypernews {
           if (op.type === 'post') {
             const hash = sha256(op.data)
             await b.put('posts!' + hash, { hash, votes: 0, data: op.data })
-            await b.put('top!' + lexint.pack(0, 'hex') + '!' + hash, hash)
           }
 
           if (op.type === 'vote') {
@@ -80,10 +79,8 @@ class Hypernews {
 
             if (!p) continue
 
-            await b.del('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash)
             p.value.votes += inc
             await b.put('posts!' + op.hash, p.value)
-            await b.put('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash, op.hash)
           }
         }
 
@@ -118,12 +115,6 @@ class Hypernews {
     }
   }
 
-  async * top () {
-    for await (const data of this.bee.createReadStream({ gt: 'top!', lt: 'top!~', reverse: true })) {
-      const { value } = (await this.bee.get('posts!' + data.value))
-      yield value
-    }
-  }
 
   async post (text) {
     const hash = sha256(text)
