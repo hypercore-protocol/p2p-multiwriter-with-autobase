@@ -17,15 +17,69 @@ npm i corestore@next autobase random-access-memory chalk
 
 If you like, you can just copy over the code you wrote for the previous exercise.
 
-## The Simplest Possible Index
+## (1) The Simplest Possible Index
 
 For the first example, we'll start with the very first example from the previous exercise: two fully-connected peers exchanging chat messages. No forks. 
 
-Let's persist the conversation into a Hypercore
+To persist the conversation into a Hypercore, we can use `const index = base.createRebasedIndex(...)`. This will return a "rebased index", which looks and feels just like a Hypercore.
+
+Rebased indexes have an `update` function that can be used to tell the index to process any changes to the inputs that have happened since the last update.
+
+*Note: In a rebased index, block 1 is the "earliest" block (block 0 is a header), and block N is the latest. This differs from the causal stream, where the first node yielded by the stream is the latest.*
+
+Try adding this chunk of code to the end of section (1) from the previous exercise:
+```js
+const indexCore = store.get({ name: 'index-core' })
+const index = baseA.createRebasedIndex(indexCore)
+await index.update()
+
+// The block at index 0 is a header block, so we skip over that.
+for (let i = 1; i < index.length; i++) {
+  const node = await index.get(i)
+  console.log(node.value.toString())
+}
+```
+
+### Exercises
+1. Have `baseB` append another message. What happens to `index` after this? Try seeing what `index.status` says -- it gives stats about what happened to the index during most recent update.
+
+## (2) The Simplest Index, but with Forks
+
+Now we'll see how a reordering of the causal stream affects indexing. Let's revisit the second example from the previous exercise (the one where we create two independent forks).
+
+Copy the code from that section, but create a rebased index using the approach above. Every time either `baseA` or `baseB` appends new messages, update the index with `await index.update()` and then see how `index.status` changes. 
+
+You'll notice that whenever there's a reordering, the `removed` field is > 0 -- this means that the index Hypercore has been truncated.
+
+You'll also notice that after A grows by 3, `removed` is 4 and `added` is 7. This is because A and B get reordered (causing the entire index to be truncated), and then A's 3 new messages are added on top.
+
+### Exercises
+1. Just try out the example and watch how `index.status` changes in response to causal stream reorderings.
 
 ## A Mapping Indexer
 
-## A Word-Counting Indexer
+Even the simple index we made is useful for certain cases -- with chat, for example, often you just want to display a chat log without having to recompute the ordering unnecessarily.
+
+But `createRebasedIndex` really shines when it's paired with an `apply` function, which lets you configure exactly what should be recorded in the index in response to a batch of input nodes.
+
+As an example, let's say we want to apply a map function to the chat messages to convert all the messages to uppercase. We'd do this by adding the following `apply` option to `createRebasedIndex`:
+```js
+const index = base.createRebasedIndex(indexCore, {
+  async apply (batch) {
+    batch = batch.map(({ value }) => Buffer.from(value.toString().toUpperCase()))
+    await index.append(batch)
+  }
+})
+```
+
+Note that you can modify the `index` directly with `append`, which is just like a normal Hypercore `append`, but you can only do this inside of the `apply` function!
+
+The second exercise for this section involves making a stateful indexer -- an `apply` function that records cumulative information about all the input nodes that have been processed so far. It's definitely trickier, but really highlights the value of these derived indexes. If you were to share this index with others, they could check the message count by downloading a single block, the latest one!
+
+### Exercises
+1. Add that `apply` function to `createRebasedIndex` and see how the index Hypercore changes as a result.
+2. __HARD__: Make the map function stateful, such that it includes the total number of messages sent by either A or B in the blocks it records. You can call `index.get` from inside the `apply` function.
+  * For this exercise, feel free to jump straight to the solution if you get stuck.
 
 ## Short-Circuiting with Remote Indexes
 
