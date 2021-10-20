@@ -1,6 +1,6 @@
 # Autobase 2 - Indexing
 
-In the previous exercise, we saw how Autobase can give you a "causal stream" of messages from N input hypercores, and that this causal stream defines a particular kind of deterministic ordering. Most importantly, we saw how th ecausal stream treats forks, and how the stream ordering grows stable over time as input nodes become "locked" at specific positions.
+In the previous exercise, we saw how Autobase can give you a "causal stream" of messages from N input hypercores, and that this causal stream defines a particular kind of deterministic ordering. Most importantly, we saw how the causal stream treats forks, and how the stream ordering grows stable over time as input nodes become "locked" at specific positions.
 
 But why does Autobase produce a causal stream with these properties? So we can persist the stream into a Hypercore and share it! Before Hypercore 10, it wouldn't have been possible to store any kind of causal stream in a Hypercore, because append-only logs can't be reordered. With Hypercore 10's new `truncate` method, we can shorten a Hypercore to a particular length, and then re-append new blocks. Truncation is still expensive, though, so we want to minimize both how often we truncate, and how large those truncations are -- hence the causal stream's very particular approach to ordering.
 
