@@ -4,6 +4,7 @@ import Hyperswarm from 'hyperswarm'
 import Autobase from 'autobase'
 import Hyperbee from 'hyperbee'
 import crypto from 'crypto'
+import lexint from 'lexicographic-integer'
 import ram from 'random-access-memory'
 
 const args = minimist(process.argv, {
@@ -71,6 +72,7 @@ class Hypernews {
             const hash = sha256(op.data)
             await b.put('posts!' + hash, { hash, votes: 0, data: op.data })
           }
+
         }
 
         await b.flush()
@@ -113,7 +115,6 @@ class Hypernews {
       data: text
     }))
   }
-
 }
 
 export const hypernews = new Hypernews()
