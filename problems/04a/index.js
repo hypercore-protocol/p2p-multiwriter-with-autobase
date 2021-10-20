@@ -11,8 +11,7 @@ console.log(chalk.green('\n(1) Ordering Chat Messages\n'))
   const userA = store.get({ name: 'userA' })
   const userB = store.get({ name: 'userB' })
 
-  // Make an Autobase with those two users as inputs.
-
+  // Make two Autobases with those two users as inputs.
   const baseA = new Autobase([userA, userB], { input: userA })
   const baseB = new Autobase([userA, userB], { input: userB })
 
