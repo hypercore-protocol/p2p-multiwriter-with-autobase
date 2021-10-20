@@ -56,7 +56,7 @@ You'll also notice that after A grows by 3, `removed` is 4 and `added` is 7. Thi
 ### Exercises
 1. Just try out the example and watch how `index.status` changes in response to causal stream reorderings.
 
-## A Mapping Indexer
+## (3) A Mapping Indexer
 
 Even the simple index we made is useful for certain cases -- with chat, for example, often you just want to display a chat log without having to recompute the ordering unnecessarily.
 
@@ -76,14 +76,44 @@ Note that you can modify the `index` directly with `append`, which is just like 
 
 The second exercise for this section involves making a stateful indexer -- an `apply` function that records cumulative information about all the input nodes that have been processed so far. It's definitely trickier, but really highlights the value of these derived indexes. If you were to share this index with others, they could check the message count by downloading a single block, the latest one!
 
+We extend this concept a lot further in the next exercise -- the rabbit hole goes deeper.
+
 ### Exercises
 1. Add that `apply` function to `createRebasedIndex` and see how the index Hypercore changes as a result.
 2. __HARD__: Make the map function stateful, such that it includes the total number of messages sent by either A or B in the blocks it records. You can call `index.get` from inside the `apply` function.
   * For this exercise, feel free to jump straight to the solution if you get stuck.
 
-## Short-Circuiting with Remote Indexes
+## (4) Working with Remote Indexes
 
-## Sparsely Downloading Indexes
+So far we've talked about "sharing indexes" a lot, but we haven't explained why that's a useful and powerful feature, or how to work with these shared indexes.
+
+In short, there are two ways in which you might want to use `createRebasedIndex`:
+1. As an __indexer__, in which case you want to process the entire causal stream yourself, so that your index can be shared with readers.
+2. As a __reader__, in which case you want to piggy-back off other other indexes (produced by indexers), and only re-index new changes that haven't already been incorporated into the remote indexes. In this mode, any additional work that the `RebasedIndex` needs to do to bring the other indexes up to date will only be kept in memory -- the index is not persistent locally.
+
+We typically imagine people an Autobase network having N writers, ~N indexers, and M >> N readers. Ideally, every writer (the owner of a Hypercore that's an Autobase input) would also be an indexer, and would publish their index to the network. Perhaps other people are running designated indexing machines, and publishing those indexes as well -- many remote indexes for readers to choose from.
+
+Using these remote indexes massively improves the reader-side experience. Say the participants in our chat want to share the chat log with millions of readers -- with remote indexes, those readers will have very little (if any) indexing work to do locally, and they can make use of Hypercore's other cool features, like bandwidth sharing and sparse syncing.
+
+### Exercises
+Let's extend the very first example in this section with a second index that treats the first index as a remote one. 
+
+Copy over your code for (1), and add another index as follows:
+```js
+const baseC = new Autobase([userA, userB]) 
+const readerIndex = baseC.createRebasedIndex([indexCore], {
+  autocommit: false // Ignore this for now
+})
+
+// This will piggy-back off of the work `indexCore` has already done.
+await readerIndex.update()
+```
+
+The `autocommit` flag is only necessary because we are simulating a remote peer locally, so `indexCore` is writable.
+
+Notice how the `status` shows that the update didn't add or remove any new nodes. This means that the reader has detected that `indexCore` is completely up-to-date, and so no additional indexing is necessary.
+
+## (5) Sparsely Downloading Indexes
 
 Rebased indexes are just Hypercores, and so they share all of Hypercore's nice properties. One particular cool feature is the ability to "sparsely download" blocks on-demand. In the next exercise, we're going to use the indexing approach above to build a Hyperbee, our Hypercore-based [B-Tree](https://en.wikipedia.org/wiki/B-tree) implemention -- with Hyperbee, you can store KV-pairs, and then perform range queries over keys, while only touching a subset of the blocks in the underlying Hypercore.
 

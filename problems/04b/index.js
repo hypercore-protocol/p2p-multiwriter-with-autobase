@@ -156,9 +156,8 @@ console.log(chalk.green('\n(3) A Mapping Indexer\n'))
   }
 }
 
-/*
-// (2) Locking Forks in Time
-console.log(chalk.green('\n(2) Locking Forks in Time\n'))
+// (4) Working with Remote Indexes
+console.log(chalk.green('\n(1) Working with Remote Indexes\n'))
 {
   // Create two chat users, each with their own Hypercores.
   const store = new Corestore(ram)
@@ -169,59 +168,33 @@ console.log(chalk.green('\n(2) Locking Forks in Time\n'))
   const baseA = new Autobase([userA, userB], { input: userA })
   const baseB = new Autobase([userA, userB], { input: userB })
 
-  // (2) Append chat messages and read them out again, manually specifying empty clocks.
-  // This simulates two peers creating independent forks.
-  await baseA.append('A0: hello! anybody home?', []) // An empty array as a second argument means "empty clock"
-  await baseB.append('B0: hello! first one here.', [])
-  await baseA.append('A1: hmmm. guess not.', [])
-  await baseB.append('B1: anybody home?', [])
+  // Append chat messages and read them out again, using the default options.
+  // This simulates two peers who are always completely up-to-date with each others messages.
+  await baseA.append('A0: hello!')
+  await baseB.append('B0: hi! good to hear from you')
+  await baseA.append('A1: likewise. fun exercise huh?')
+  await baseB.append('B1: yep. great time.')
 
+  const indexCore = store.get({ name: 'index-core' })
+  const index = baseA.createRebasedIndex(indexCore)
+  await index.update()
 
-  console.log(chalk.blue('After A and B each wrote two independent messages:'))
-  for await (const node of baseA.createCausalStream()) {
-    console.log(node.value.toString())
-  }
+  // Now we will simulate a "reader" who will use the index above as a remote index.
+  // The reader will not be participating in the chat, but will be reading from the index.
+  const baseC = new Autobase([userA, userB]) 
+  const readerIndex = baseC.createRebasedIndex([indexCore], {
+    autocommit: false // Ignore this for now
+  })
 
-  // Add 3 more independent messages to A. Does its fork move to the beginning or the end?
-  for (let i = 0; i < 3; i++) {
-    await baseA.append(`A${2 + i}: trying again...`, [])
-  }
+  // This will piggy-back off of the work `indexCore` has already done.
+  await readerIndex.update()
 
-  console.log(chalk.blue('After A wrote 3 more independent messages:'))
-  for await (const node of baseA.createCausalStream()) {
-    console.log(node.value.toString())
-  }
+  // Since the remote index is fully up-to-date, the reader should not have to do any work.
+  console.log(chalk.blue('Reader update status (should be zeros):'), readerIndex.status, '\n')
 
-  // Add 5 more independent messages to B. Does its fork move to the beginning or the end?
-  for (let i = 0; i < 5; i++) {
-    await baseB.append(`B${2 + i}: also trying again...`, [])
-  }
-
-  console.log(chalk.blue('After B wrote 5 more independent messages:'))
-  for await (const node of baseA.createCausalStream()) {
-    console.log(node.value.toString())
-  }
-
-  // Resolve the two forks by having B record a message that causally links both forks.
-  await baseB.append('B7: looks like we\'re both online!')
-
-  console.log(chalk.blue('After B resolved the forks:'))
-  for await (const node of baseA.createCausalStream()) {
-    console.log(node.value.toString())
-  }
-
-  // Making A and B fork once more
-  await baseA.append('A5: oops. gone again', [])
-  await baseB.append('B8: hello?', [])
-
-  console.log(chalk.blue('After A and B forked again:'))
-  for await (const node of baseA.createCausalStream()) {
+  // The block at index 0 is a header block, so we skip over that.
+  for (let i = 1; i < readerIndex.length; i++) {
+    const node = await readerIndex.get(i)
     console.log(node.value.toString())
   }
 }
-*/
-
-
-
-
-
