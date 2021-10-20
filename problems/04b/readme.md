@@ -96,7 +96,9 @@ We typically imagine an Autobase network having N writers, ~N indexers, and M >>
 Using these remote indexes massively improves the reader-side experience. Say the participants in our chat want to share the chat log with millions of readers -- with remote indexes, those readers will have very little (if any) indexing work to do locally, and they can make use of Hypercore's other cool features, like bandwidth sharing and sparse syncing.
 
 ### Exercises
-Let's extend the very first example in this section with a second index that treats the first index as a remote one. 
+Let's extend the very first example in this section with a second index that treats the first index as a remote one.
+
+`createRebasedIndex` behaves differently depending on if the Hypercores it's given are readable (meaning coming from remote peers) or writable (local Hypercores). If you give it an Array of readable Hypercores, those will be treated as remote indexes (the index will be in "reader" mode). Otherwise the index will be in "indexer" mode.
 
 Copy over your code for (1), and add another index as follows:
 ```js
@@ -109,7 +111,7 @@ const readerIndex = baseC.createRebasedIndex([indexCore], {
 await readerIndex.update()
 ```
 
-The `autocommit` flag is only necessary because we are simulating a remote peer locally, so `indexCore` is writable.
+The `autocommit` flag is only necessary because we are simulating a remote peer locally, so `indexCore` is writable. We explicitly tell the index to treat `indexCore` as a remote index with that flag.
 
 Notice how the `status` shows that the update didn't add or remove any new nodes. This means that the reader has detected that `indexCore` is completely up-to-date, and so no additional indexing is necessary.
 
