@@ -91,7 +91,7 @@ In short, there are two ways in which you might want to use `createRebasedIndex`
 1. As an __indexer__, in which case you want to process the entire causal stream yourself, so that your index can be shared with readers.
 2. As a __reader__, in which case you want to piggy-back off other other indexes (produced by indexers), and only re-index new changes that haven't already been incorporated into the remote indexes. In this mode, any additional work that the `RebasedIndex` needs to do to bring the other indexes up to date will only be kept in memory -- the index is not persistent locally.
 
-We typically imagine people an Autobase network having N writers, ~N indexers, and M >> N readers. Ideally, every writer (the owner of a Hypercore that's an Autobase input) would also be an indexer, and would publish their index to the network. Perhaps other people are running designated indexing machines, and publishing those indexes as well -- many remote indexes for readers to choose from.
+We typically imagine an Autobase network having N writers, ~N indexers, and M >> N readers. Ideally, every writer (the owner of a Hypercore that's an Autobase input) would also be an indexer, and would publish their index to the network. Perhaps other people are running designated indexing machines, and publishing those indexes as well -- many remote indexes for readers to choose from.
 
 Using these remote indexes massively improves the reader-side experience. Say the participants in our chat want to share the chat log with millions of readers -- with remote indexes, those readers will have very little (if any) indexing work to do locally, and they can make use of Hypercore's other cool features, like bandwidth sharing and sparse syncing.
 
