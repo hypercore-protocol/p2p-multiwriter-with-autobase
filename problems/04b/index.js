@@ -3,8 +3,8 @@ import ram from 'random-access-memory'
 import Corestore from 'corestore'
 import Autobase from 'autobase'
 
-// (1) Ordering Chat Messages
-console.log(chalk.green('\n(1) Ordering Chat Messages\n'))
+// (1) The Simplest Possible Index
+console.log(chalk.green('\n(1) The Simplest Possible Index\n'))
 {
   // Create two chat users, each with their own Hypercores.
   const store = new Corestore(ram)
@@ -22,11 +22,17 @@ console.log(chalk.green('\n(1) Ordering Chat Messages\n'))
   await baseA.append('A1: likewise. fun exercise huh?')
   await baseB.append('B1: yep. great time.')
 
-  for await (const node of baseA.createCausalStream()) {
+  const indexCore = store.get({ name: 'index-core' })
+  const index = baseA.createRebasedIndex(indexCore)
+  await index.update()
+
+  for (let i = 1; i < index.length; i++) {
+    const node = await index.get(i)
     console.log(node.value.toString())
   }
 }
 
+/*
 // (2) Forks and Reordering
 console.log(chalk.green('\n(2) Forks and Reordering\n'))
 {
@@ -135,54 +141,7 @@ console.log(chalk.green('\n(2) Locking Forks in Time\n'))
     console.log(node.value.toString())
   }
 }
-
-/*
-await baseA.append('A0', []) // [] is an empty vector clock (no causal dependencies)
-await baseA.append('A1', []) // (empty vector clocks only useful for tests/demos)
-await baseB.append('B0', [])
-
-// Extending A keeps the same fork ordering.
-
-await baseA.append('A2', [])
-await baseA.append('A3', [])
-
-// If B becomes longer than A, it will be shifted to the back.
-
-await baseB.append('B1', [])
-await baseB.append('B2', [])
-await baseB.append('B3', [])
-await baseB.append('B4', [])
-
-// Appending with the default (latest) clock will now "lock" the forks in time.
-// After this point, the previous forks will never reorg.
-
-await baseB.append('*B5*') // The vector clock argument defaults to the latest clock
-
-// If A's fork is extended, its subsequents writes will appear after B5.
-
-await baseA.append('A4', []) // A stays on its fork
-
-// If B creates a new fork, it will also appear after B5.
-// A's new fork and B's new fork will reorder as in the previous examples, but everything before B5 is "locked".
-
-await baseB.append('B6', []) // B creates a new fork
-await baseB.append('B7', [])
-
-// Since an Autobase is stateless, it's super easy to remove "misbehaving" writers:
-prettyPrint('Here\'s a causal stream that only contains A\'s writes:', 'green')
-const withoutB = new Autobase([writerA])
-await prettyPrintCausalStream(withoutB)
 */
-
-async function prettyPrintCausalStream (base) {
-  process.stdout.write('(latest) -> ')
-  for await (const { value } of base.createCausalStream()) {
-    process.stdout.write(`${value.toString()} -> `)
-  }
-  process.stdout.write('(earliest)')
-  process.stdout.write('\n')
-}
-
 
 
 
