@@ -83,17 +83,11 @@ We extend this concept a lot further in the next exercise -- the rabbit hole goe
 2. __HARD__: Make the map function stateful, such that it includes the total number of messages sent by either A or B in the blocks it records. You can call `index.get` from inside the `apply` function.
   * For this exercise, feel free to jump straight to the solution if you get stuck.
 
-## (4) Working with Remote Indexes
+## (4) Sharing Indexes with Others
 
-So far we've talked about "sharing indexes" a lot, but we haven't explained why that's a useful and powerful feature, or how to work with these shared indexes.
+In the previous sections we've seen how remote indexes can be used in combination with the apply function to make powerful data structures that are indexed on the fly. However for readers accessing our data structures it's a bad user experience to have to reindex all of the inputs - especially as the Autobase's input Hypercores grow longer and longer over time. We'd prefer a near instant experience like we are used to from most centralised systems, without needing to wait for a long pre-indexing step. Luckily, Autobase's remote indexes solve this for us.
 
-In short, there are two ways in which you might want to use `createRebasedIndex`:
-1. As an __indexer__, in which case you want to process the entire causal stream yourself, so that your index can be shared with readers.
-2. As a __reader__, in which case you want to piggy-back off other other indexes (produced by indexers), and only re-index new changes that haven't already been incorporated into the remote indexes. In this mode, any additional work that the `RebasedIndex` needs to do to bring the other indexes up to date will only be kept in memory -- the index is not persistent locally.
-
-We typically imagine an Autobase network having N writers, ~N indexers, and M >> N readers. Ideally, every writer (the owner of a Hypercore that's an Autobase input) would also be an indexer, and would publish their index to the network. Perhaps other people are running designated indexing machines, and publishing those indexes as well -- many remote indexes for readers to choose from.
-
-Using these remote indexes massively improves the reader-side experience. Say the participants in our chat want to share the chat log with millions of readers -- with remote indexes, those readers will have very little (if any) indexing work to do locally, and they can make use of Hypercore's other cool features, like bandwidth sharing and sparse syncing.
+By passing Hypercores representing other peers' indexes to `createRebasedIndex`, Autobase will piggy-back on those "remote indexes", and only apply the minimal changes needed instead of re-indexing every input from start to finish. Using these remote indexes massively improves the reader-side experience. Say the participants in our chat want to share the chat log with millions of readers -- with remote indexes, those readers will have very little (if any) indexing work to do locally, and they can make use of Hypercore's other cool features, like bandwidth sharing and sparse syncing.
 
 ### Exercises
 Let's extend the very first example in this section with a second index that treats the first index as a remote one.

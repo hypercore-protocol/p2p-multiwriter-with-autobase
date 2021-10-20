@@ -1,8 +1,8 @@
 {
   "type": "module",
   "dependencies": {
-    "autobase": "github:hypercore-skunkworks/autobase",
     "corestore": "next",
+    "autobase": "^1.0.0",
     "chalk": "^4.1.2",
     "random-access-memory": "^3.1.2"
   }

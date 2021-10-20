@@ -156,8 +156,8 @@ console.log(chalk.green('\n(3) A Mapping Indexer\n'))
   }
 }
 
-// (4) Working with Remote Indexes
-console.log(chalk.green('\n(1) Working with Remote Indexes\n'))
+// (4) Sharing Indexes with Others
+console.log(chalk.green('\n(1) Sharing Indexes with Others\n'))
 {
   // Create two chat users, each with their own Hypercores.
   const store = new Corestore(ram)
