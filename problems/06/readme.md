@@ -55,7 +55,7 @@ Extend the `apply` function to meet the following criteria:
 * If the result isn't found, bail out (`continue` from the loop)
 * Check `op.up` to see whether to upvote or downvote an item. 
 * Increment or decrement the votes amount on a post accordingly
-* Add a put to the `b` batch instance with the for the same post, passing the updated votes (and other values) to it: `await b.put('posts!' + op.hash, <updated entry>)`
+* Add a put to the `b` batch instance for that post, passing the updated votes (and other values) to it: `await b.put('posts!' + op.hash, <updated entry>)`
 
 Once this has been completed we can add the `upvote` and `downvote` methods to the `Hypernews` class. 
 
