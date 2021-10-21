@@ -1,6 +1,6 @@
 # What to Swarm? Cores!
 
-While P2P networking is an incredible powerful concept by itself, it oftens lacks a companion. A fully authenticated and secure data structure you can share with multiple peers without having to trust any of them to not modify the data before giving it to other peers.
+While P2P networking is an incredibly powerful concept by itself, it often lacks a companion. A fully authenticated and secure data structure you can share with multiple peers without having to trust any of them to not modify the data before giving it to other peers.
 
 That abstraction is called Hypercore, and we've covered it in many previous workshops. For this workshop in the later exercises we'll be building powerful multi-writer applications on top of it, and we'll be using the next version of Hypercore to power this, called Hypercore 10.
 
@@ -14,11 +14,11 @@ Hypercore 10 is an append-only log, or basically a distributed array, that suppo
 
 These APIs can be used to build a ton of powerful data structures on top, including key/value stores, video streaming and much more.
 
-One of the most powerful things that Hypercore provides is the ability to download just the specific parts of the core you need for your application. For example a video stream would only want to download the blocks of data needed to render the video to the user rather that to download a full 4K video first.
+One of the most powerful things that Hypercore provides is the ability to download just the specific parts of the core you need for your application. For example a video stream would only want to download the blocks of data needed to render the video to the user rather than to download a full 4K video first.
 
 Hypercore provides all this, but in a way where peers can relay blocks of data to other peers, without anyone having to trust anything other than the public key of the Hypercore itself. The caveat is that only a single person is allowed to update and modify the Hypercore itself, but with the above primitives we can build simple abstractions that solves that also, which we'll do in the next exercise after this.
 
-Hypercores are most easily manages using something called a Corestore, which is a small abstraction that creates and maintains as many Hypercores as you need.
+Hypercores are most easily managed using something called a Corestore, which is a small abstraction that creates and maintains as many Hypercores as you need.
 
 You can read more about Hypercore 10 in it's readme:
 
@@ -36,7 +36,7 @@ First install the latest version of Corestore from NPM. Again it's available und
 npm install corestore@next
 ```
 
-Now make a called `corestore.js` and insert the following
+Now make a file called `corestore.js` and insert the following
 
 ```js
 import Corestore from 'corestore'
@@ -60,7 +60,7 @@ await core.append(Buffer.from('a block'))
 
 ## Exercise 2 - Replicating a Corestore
 
-Corestores and Hypercores can easily be replicated other Hyperswarm or any other stream based transport.
+Corestores and Hypercores can easily be replicated over Hyperswarm or any other stream based transport.
 
 Let's try doing that. First you can use this file `seed.js` to easily make a feed that has a decent amount of data in a Hypercore.
 

@@ -41,7 +41,7 @@ for (let i = 1; i < index.length; i++) {
 ```
 
 ### Exercises
-1. Have `baseB` append another message. What happens to `index` after this? Try seeing what `index.status` says -- it gives stats about what happened to the index during most recent update.
+1. Have `baseB` append another message. What happens to `index` after this? Try seeing what `index.status` says -- it gives stats about what happened to the index during the most recent update.
 
 ## (2) The Simplest Index, but with Forks
 
@@ -92,7 +92,7 @@ By passing Hypercores representing other peers' indexes to `createRebasedIndex`,
 ### Exercises
 Let's extend the very first example in this section with a second index that treats the first index as a remote one.
 
-`createRebasedIndex` behaves differently depending on if the Hypercores it's given are readable (meaning coming from remote peers) or writable (local Hypercores). If you give it an Array of readable Hypercores, those will be treated as remote indexes. If the Hypercores are writable, they will be treated as local indexes, and the complete causal stream will be rebased into them.
+`createRebasedIndex` behaves differently depending on whether the Hypercores it's given are readable (meaning coming from remote peers) or writable (local Hypercores). If you give it an Array of readable Hypercores, those will be treated as remote indexes. If the Hypercores are writable, they will be treated as local indexes, and the complete causal stream will be rebased into them.
 
 Copy over your code for (1), and add another index as follows:
 ```js

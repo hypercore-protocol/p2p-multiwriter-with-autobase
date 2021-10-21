@@ -38,7 +38,7 @@ The Autobase constructor above says "Create an Autobase using `userA` and `userB
 
 ## Ordering Chat Messages
 
-Somehow, each message needs to indicate its context, the messages that the sender had previously seen when the wrote that message, and we call this "causal information". Autobase handles this for you automatically.
+Somehow, each message needs to indicate its context: the messages that the sender had previously seen when they wrote that message, we call this "causal information". Autobase handles this for you automatically.
 
 Let's have each user write a few chat messages and then read out the complete chat log. We can do this with the `append` and `createCausalStream` methods as follows:
 ```js
@@ -55,7 +55,7 @@ for await (const node of baseA.createCausalStream()) {
 
 You should hopefully see that the messages appear in the "correct" order, but reversed. They're reversed because Autobase's causal stream walks backwards, starting at the "head" of each input Hypercore, and yielding messages in causal order. Causal order here means that the N+1th message returned by the causal stream will *never* be causally-dependent on the Nth message.
 
-There are a few things to note here. The first is that the causal stream returns "input nodes" which contain the chat message (in the `value` field) along with additional metadata that's used for ordering. Take a look at the `clock` field, for example. When you do an `append` with default options, Autobase will embed the "latest clock" in the message, meaning that because our Hypercores are local in this example, we're simulating two peers who are connected and completely up-to-date with each other. 
+Note how the causal stream returns "input nodes" which contain the chat message (in the `value` field) along with additional metadata that's used for ordering. Take a look at the `clock` field, for example. When you do an `append` with default options, Autobase will embed the "latest clock" in the message, meaning that because our Hypercores are local in this example, we're simulating two peers who are connected and completely up-to-date with each other.
 
 But in the real world, peers come and go, and connectivity can be spotty. Let's make the example more interesting by modifying the causal information that's recorded by `append`.
 
