@@ -13,7 +13,7 @@ The `autobase.createRebasedIndex()` creates a materialized view over the input h
 
 The `apply` function isn't called when entries are writen to `autobase`, instead it's called on read 
 (for instance, when the `hypernews.all()` function is called, it calls `bee.createReadStream`). Once
-an entry has been processed by apply, it will not be processed again (e.g. it's idempotent).
+an entry has been processed by apply, it will not be processed again (i.e. it's idempotent).
 
 
 Currently the `apply` function looks like this:
