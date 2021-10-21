@@ -3,7 +3,7 @@
 Okay, so in the previous exercise we got our feet a little wet with the basics of P2P networking.
 The `createServer` / `connect` apis are at the foundation of everything we do with P2P, but often when making applications we don't really care who is acting as a server and who is acting as a client. After all we are making P2P applications so both peers are usually both at once! Similarly we often want to group peers per application and make sure peers reconnect etc.
 
-To avoid having to have users do all that work themself we usually use an abstraction on top of the Hyperswarm DHT api called ... a swarm. A swarm just represents a set of incoming and outgoing connections that are being maintained for you.
+To avoid having to have users do all that work themselves we usually use an abstraction on top of the Hyperswarm DHT API called ... a swarm. A swarm just represents a set of incoming and outgoing connections that are being maintained for you.
 
 # Exercise 1
 
