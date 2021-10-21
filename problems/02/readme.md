@@ -53,15 +53,15 @@ Now do the following:
 
 # Exercise 2
 
-Let's make a tiny small function program out of our swarm. Let's turn it into a simple chat service.
+Let's make a tiny small functional program out of our swarm. Let's turn it into a simple chat service.
 
-If we change to body of the connection handler to do this:
+If we change of body of the connection handler to do this:
 
 ```js
 process.stdin.pipe(encryptedSocket).pipe(process.stdout)
 ```
 
-Then we are effectively pipeing each peer to stdout out and piping our stdin to all peers - a silly chat!.
+Then we are effectively piping each peer to stdout out and piping our stdin to all peers - a silly chat!.
 
 1. Update the code with the above change.
 2. Try running multiple instances and type something and hit enter and see your messages appear with other peers.
