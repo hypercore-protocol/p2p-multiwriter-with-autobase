@@ -10,7 +10,7 @@ Instead of doing `connect(port, hostname)` you do `connect(publicKey)` and inste
 
 This is a super powerful technique as it decouples the location at which a server has to be running. Additionally it also means that ALL connections can be end to end encrypted at all time as their address, ie public key, is the information you need cryptographically to bootstrap a fully secure session.
 
-Hyperswarm implements this low level API in it's DHT module. Each instance of the DHT gossips with a global untrusted network to find other peers associated with a key pair. You can think of this as being conceptually similar to how routers gossip IPs to find each other as well.
+Hyperswarm implements this low level API in its DHT module. Each instance of the DHT gossips with a global untrusted network to find other peers associated with a key pair. You can think of this as being conceptually similar to how routers gossip IPs to find each other as well.
 
 ## Exercise 1: Making servers and clients with the DHT
 
