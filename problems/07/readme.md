@@ -1,4 +1,4 @@
-# (07) Creating Hypernews Top Posts
+# Creating Hypernews Top Posts
 
 In this exercise we'll finalize the Hypernews app with functionality that 
 allows ordering of posts by votes.

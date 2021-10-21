@@ -1,4 +1,4 @@
-# (05) Creating Hypernews Posts
+# Creating Hypernews Posts
 
 
 Now that we've understood Hyperswarm and Autobase we're going to combine

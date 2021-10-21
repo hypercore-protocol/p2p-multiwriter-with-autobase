@@ -1,4 +1,4 @@
-# (06) Creating Hypernews Voting
+# Creating Hypernews Voting
 
 In this exercise we'll create a voting system for our Hypernews posts. 
 
