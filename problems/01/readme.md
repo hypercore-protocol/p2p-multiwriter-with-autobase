@@ -77,3 +77,7 @@ P2P networks on the same computer is not as fun as P2P networks on remote comput
 1. Try getting another participant in the workshop to run your client.
 
 Alternatively ssh into a server if you can and try or get a workshop host to run your client.
+
+## Next
+
+When you are done continue to [Problem 2](../02)
