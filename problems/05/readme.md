@@ -146,3 +146,7 @@ try { for await (const data of hypernews.all()) console.log(data) } catch { cons
   data: 'hello world'
 }
 ```
+
+# Next
+
+When you are done continue to [Problem 6](../06)

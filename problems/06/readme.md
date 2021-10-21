@@ -120,4 +120,6 @@ try { for await (const data of hypernews.all()) console.log(data) } catch { cons
 }
 ```
 
+# Next
 
+When you are done continue to [Problem 7](../07)

@@ -121,4 +121,4 @@ The ability to share and sparsely sync indexes makes Autobase a lot more useful,
 
 Now all the pieces are in place to build a useful application on top of Autobase and Hyperswarm.
 
-Continue on to the next example to start building your CLI-based Reddit clone!
+Continue on to [Problem 5](../05) to start building your CLI-based Reddit clone!

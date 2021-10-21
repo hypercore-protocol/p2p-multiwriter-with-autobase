@@ -103,3 +103,9 @@ try { for await (const data of hypernews.top()) console.log(data) } catch { cons
   data: 'hello world'
 }
 ```
+
+That's it for the workshop!
+
+We encourage you to continue tinkering with the application here. Maybe add an index showing who upvoted and who downvoted?
+
+If you are interested in learning more and keeping up with the ecosystem, join our discord at https://chat.hypercore-protocol.org

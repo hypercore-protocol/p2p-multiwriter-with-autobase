@@ -125,3 +125,7 @@ console.log('Core length is:', core.length)
 2. Check that it prints the same length.
 3. Modify the peer to get block 1453 as well and print it out
 4. (Optional) Like before, try getting another workshop participant to load your Hypercore
+
+# Next
+
+When you are done continue to [Problem 4a](../04a)

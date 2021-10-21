@@ -110,3 +110,5 @@ The two new forks are at the "tip" of the causal stream, and everything behind B
 ## Next Up: Indexing
 
 Now that you've seen how Autobase can generate a deterministic ordering over messages in many input Hypercores, we'll walk through how to make use of that ordering to generate shareable, Hypercore-based indexes over those inputs.
+
+Continue to [Problem 4b](../04b) when ready.

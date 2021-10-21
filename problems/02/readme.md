@@ -66,3 +66,8 @@ Then we are effectively pipeing each peer to stdout out and piping our stdin to 
 1. Update the code with the above change.
 2. Try running multiple instances and type something and hit enter and see your messages appear with other peers.
 3. Like in the previous exercise try sharing your chat topic with other people in the workshop and do a simple 5 line, end to end encrypted cross internet chat.
+
+# Next
+
+When you are done continue to [Problem 3](../03)
+

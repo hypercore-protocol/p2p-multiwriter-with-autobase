@@ -7,3 +7,5 @@ For those of you already familiar with Hypercore, we'll be revisiting some of th
 For this workshop we'll be focusing almost entirely on our newest feature: support for multiwriter collaboration. Gearing up for this major release involved some serious revamping of our core modules, so we'll be covering all those changes on the way to the final exercise: a collaborative, CLI-based, ultra-minimal-but-illustrative Reddit clone.
 
 When you are ready start with [Problem 1](https://github.com/hypercore-protocol/p2p-multiwriter-with-autobase/tree/main/problems/01) which gives an intro to Hyperswarm v3, our P2P networking stack.
+
+If you want to keep up the Hypercore ecosystem we suggest you to join our Discord at https://chat.hypercore-protocol.org
