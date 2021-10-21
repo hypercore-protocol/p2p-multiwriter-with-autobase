@@ -1,4 +1,4 @@
-# Building Collaborative P2P Applications with Hypercore
+# Building Collaborative P2P Applications with Autobase
 
 Welcome to our workshop on building collaborative, peer-to-peer applications! We're the team behind the [Hypercore Protocol](https://hypercore-protocol.org), a suite of Node.js modules for building data-intensive P2P applications.
 
