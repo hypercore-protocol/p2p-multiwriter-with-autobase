@@ -106,15 +106,6 @@ class Hypernews {
     }
   }
 
-  async post (text) {
-    const hash = sha256(text)
-
-    await this.autobase.append(JSON.stringify({
-      type: 'post',
-      hash,
-      data: text
-    }))
-  }
 }
 
 export const hypernews = new Hypernews()
