@@ -80,10 +80,10 @@ class Hypernews {
 
             if (!p) continue
 
-	    await b.del('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash)
+            await b.del('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash)
             p.value.votes += inc
             await b.put('posts!' + op.hash, p.value)
-	    await b.put('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash, op.hash)
+            await b.put('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash, op.hash)
           }
         }
 

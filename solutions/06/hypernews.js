@@ -70,9 +70,9 @@ class Hypernews {
           if (op.type === 'post') {
             const hash = sha256(op.data)
             await b.put('posts!' + hash, { hash, votes: 0, data: op.data })
-         }
+          }
 
-	 if (op.type === 'vote') {
+          if (op.type === 'vote') {
             const inc = op.up ? 1 : -1
             const p = await self.bee.get('posts!' + op.hash, { update: false })
 
@@ -81,7 +81,7 @@ class Hypernews {
             p.value.votes += inc
             await b.put('posts!' + op.hash, p.value)
           }
-	}
+        }
 
         await b.flush()
       }
