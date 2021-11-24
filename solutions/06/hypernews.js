@@ -70,8 +70,18 @@ class Hypernews {
           if (op.type === 'post') {
             const hash = sha256(op.data)
             await b.put('posts!' + hash, { hash, votes: 0, data: op.data })
+         }
+
+	 if (op.type === 'vote') {
+            const inc = op.up ? 1 : -1
+            const p = await self.bee.get('posts!' + op.hash, { update: false })
+
+            if (!p) continue
+
+            p.value.votes += inc
+            await b.put('posts!' + op.hash, p.value)
           }
-        }
+	}
 
         await b.flush()
       }
@@ -114,6 +124,21 @@ class Hypernews {
     }))
   }
 
+  async upvote (hash) {
+    await this.autobase.append(JSON.stringify({
+      type: 'vote',
+      hash,
+      up: true
+    }))
+  }
+
+  async downvote (hash) {
+    await this.autobase.append(JSON.stringify({
+      type: 'vote',
+      hash,
+      up: false
+    }))
+  }
 }
 
 export const hypernews = new Hypernews()
