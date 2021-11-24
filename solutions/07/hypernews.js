@@ -60,7 +60,7 @@ class Hypernews {
     this.info()
 
     const self = this
-    const index = this.autobase.createRebasedIndex({
+    const view = this.autobase.linearize({
       unwrap: true,
       async apply (batch) {
         const b = self.bee.batch({ update: false })
@@ -71,7 +71,6 @@ class Hypernews {
           if (op.type === 'post') {
             const hash = sha256(op.data)
             await b.put('posts!' + hash, { hash, votes: 0, data: op.data })
-            await b.put('top!' + lexint.pack(0, 'hex') + '!' + hash, hash)
           }
 
           if (op.type === 'vote') {
@@ -80,10 +79,8 @@ class Hypernews {
 
             if (!p) continue
 
-            await b.del('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash)
             p.value.votes += inc
             await b.put('posts!' + op.hash, p.value)
-            await b.put('top!' + lexint.pack(p.value.votes, 'hex') + '!' + op.hash, op.hash)
           }
         }
 
@@ -91,7 +88,7 @@ class Hypernews {
       }
     })
 
-    this.bee = new Hyperbee(index, {
+    this.bee = new Hyperbee(view, {
       extension: false,
       keyEncoding: 'utf-8',
       valueEncoding: 'json'
@@ -104,7 +101,7 @@ class Hypernews {
     console.log('hrepl hypernews.js ' +
       '-n ' + this.name + ' ' +
       this.autobase.inputs.map(i => '-w ' + i.key.toString('hex')).join(' ') + ' ' +
-      this.autobase.defaultIndexes.map(i => '-i ' + i.key.toString('hex')).join(' ')
+      this.autobase.defaultOutputs.map(i => '-i ' + i.key.toString('hex')).join(' ')
     )
     console.log()
     console.log('To use another storage directory use --storage ./another')
@@ -118,12 +115,6 @@ class Hypernews {
     }
   }
 
-  async * top () {
-    for await (const data of this.bee.createReadStream({ gt: 'top!', lt: 'top!~', reverse: true })) {
-      const { value } = (await this.bee.get('posts!' + data.value))
-      yield value
-    }
-  }
 
   async post (text) {
     const hash = sha256(text)

@@ -4,11 +4,11 @@ In this exercise we'll create a voting system for our Hypernews posts.
 
 ## Persistent, indexed, materialized views
 
-Within the `start` method of the `Hypernews` class, an Autobase index is created by invoking
-`this.autobase.createRebasedIndex()`. The options object passed to that function contains an
+Within the `start` method of the `Hypernews` class, an Autobase view is created by invoking
+`this.autobase.linearize()`. The options object passed to that function contains an
 `apply` function - see [hypernews.js#L65-80](hypernews.js#L65-80). 
 
-The `autobase.createRebasedIndex()` creates a materialized view over the input hypercores,
+The `autobase.linearize()` creates a materialized view over the input hypercores,
 `apply` configures how that view is persisted.
 
 The `apply` function isn't called when entries are writen to `autobase`, instead it's called on read 
@@ -36,7 +36,7 @@ async apply (batch) {
 }
 ```
 
-The `index` itself is actually the storage core for the `Hyperbee` instance (the p2p key value store - `bee`).
+The `view` itself is actually the storage core for the `Hyperbee` instance (the p2p key value store - `bee`).
 On top of that, the `apply` function writes what could be considered "views" back into 
 the `bee`. The `b` constant here is a batching object of the `bee`, it allows for many ops in the `for of` loop 
 to be sent at one time when `b.flush()` is called. The reason `{ update: false }` is passed to `self.bee.batch` 
@@ -46,7 +46,7 @@ when creating the `b` constant, is it stops the `apply` function from being call
 
 ## Excercise - Implement voting
 
-The `apply` function passed to `autobase.createRebasedIndex()` currently supports one type of operation: `'post'`.
+The `apply` function passed to `autobase.linearize()` currently supports one type of operation: `'post'`.
 
 Extend the `apply` function to meet the following criteria:
 

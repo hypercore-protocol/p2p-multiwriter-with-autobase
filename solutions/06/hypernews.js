@@ -59,7 +59,7 @@ class Hypernews {
     this.info()
 
     const self = this
-    const index = this.autobase.createRebasedIndex({
+    const view = this.autobase.linearize({
       unwrap: true,
       async apply (batch) {
         const b = self.bee.batch({ update: false })
@@ -71,23 +71,13 @@ class Hypernews {
             const hash = sha256(op.data)
             await b.put('posts!' + hash, { hash, votes: 0, data: op.data })
           }
-
-          if (op.type === 'vote') {
-            const inc = op.up ? 1 : -1
-            const p = await self.bee.get('posts!' + op.hash, { update: false })
-
-            if (!p) continue
-
-            p.value.votes += inc
-            await b.put('posts!' + op.hash, p.value)
-          }
         }
 
         await b.flush()
       }
     })
 
-    this.bee = new Hyperbee(index, {
+    this.bee = new Hyperbee(view, {
       extension: false,
       keyEncoding: 'utf-8',
       valueEncoding: 'json'
@@ -100,7 +90,7 @@ class Hypernews {
     console.log('hrepl hypernews.js ' +
       '-n ' + this.name + ' ' +
       this.autobase.inputs.map(i => '-w ' + i.key.toString('hex')).join(' ') + ' ' +
-      this.autobase.defaultIndexes.map(i => '-i ' + i.key.toString('hex')).join(' ')
+      this.autobase.defaultOutputs.map(i => '-i ' + i.key.toString('hex')).join(' ')
     )
     console.log()
     console.log('To use another storage directory use --storage ./another')
@@ -124,21 +114,6 @@ class Hypernews {
     }))
   }
 
-  async upvote (hash) {
-    await this.autobase.append(JSON.stringify({
-      type: 'vote',
-      hash,
-      up: true
-    }))
-  }
-
-  async downvote (hash) {
-    await this.autobase.append(JSON.stringify({
-      type: 'vote',
-      hash,
-      up: false
-    }))
-  }
 }
 
 export const hypernews = new Hypernews()
