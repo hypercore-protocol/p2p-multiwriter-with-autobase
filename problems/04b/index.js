@@ -22,8 +22,8 @@ console.log(chalk.green('\n(1) The Simplest Possible Index\n'))
   await baseA.append('A1: likewise. fun exercise huh?')
   await baseB.append('B1: yep. great time.')
 
-  const indexCore = store.get({ name: 'index-core' })
-  const view = baseA.linearize(indexCore)
+  const viewCore = store.get({ name: 'view-core' })
+  const view = baseA.linearize(viewCore)
   await view.update()
 
   for (let i = 0; i < view.length; i++) {
@@ -112,7 +112,7 @@ console.log(chalk.green('\n(3) A Mapping Indexer\n'))
   await view.update()
 
   // All the indexed nodes will be uppercased now.
-  for (let i = 1; i < view.length; i++) {
+  for (let i = 0; i < view.length; i++) {
     const node = await view.get(i)
     console.log(node.value.toString())
   }
@@ -191,7 +191,6 @@ console.log(chalk.green('\n(1) Sharing Indexes with Others\n'))
   // Since the remote index is fully up-to-date, the reader should not have to do any work.
   console.log(chalk.blue('Reader update status (should be zeros):'), readerView.status, '\n')
 
-  // The block at index 0 is a header block, so we skip over that.
   for (let i = 0; i < readerView.length; i++) {
     const node = await readerView.get(i)
     console.log(node.value.toString())
