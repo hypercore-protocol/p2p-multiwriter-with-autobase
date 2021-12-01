@@ -60,7 +60,7 @@ class Hypernews {
     this.info()
 
     const self = this
-    const index = this.autobase.createRebasedIndex({
+    const view = this.autobase.linearize({
       unwrap: true,
       async apply (batch) {
         const b = self.bee.batch({ update: false })
@@ -91,7 +91,7 @@ class Hypernews {
       }
     })
 
-    this.bee = new Hyperbee(index, {
+    this.bee = new Hyperbee(view, {
       extension: false,
       keyEncoding: 'utf-8',
       valueEncoding: 'json'
@@ -104,7 +104,7 @@ class Hypernews {
     console.log('hrepl hypernews.js ' +
       '-n ' + this.name + ' ' +
       this.autobase.inputs.map(i => '-w ' + i.key.toString('hex')).join(' ') + ' ' +
-      this.autobase.defaultIndexes.map(i => '-i ' + i.key.toString('hex')).join(' ')
+      this.autobase.defaultOutputs.map(i => '-i ' + i.key.toString('hex')).join(' ')
     )
     console.log()
     console.log('To use another storage directory use --storage ./another')
