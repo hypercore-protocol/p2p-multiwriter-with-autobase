@@ -31,7 +31,7 @@ A `top!` key should be created like so: `'top!' + lexint.pack(<amount of votes>,
 
 ## Excercise - Implement Top Posts
 
-The `apply` function passed to `autobase.createRebasedIndex()` needs to be modified once more,
+The `apply` function passed to `autobase.linearize()` needs to be modified once more,
 and a new `top` function needs to be added to the `Hypernews` class.
 
 The `top` function should look like so:
@@ -57,7 +57,7 @@ should be the hash of a post entry, so this can be concatenated to the `posts!` 
 to fetch that actual post entry from the `bee`. The resulting object has a `value` property which is
 destructured and yielded out.
 
-Now modify the `apply` function passed to `autobase.createRebasedIndex()` to meet the following criteria:
+Now modify the `apply` function passed to `autobase.linearize()` to meet the following criteria:
 
 * In addition to a `posts!` put for ops with `type` of `'post'`, create another put to a key `'top!' + lexint.pack(0, 'hex') + '!' + hash`. The 0 is for zero votes, which is the initial value of vote. The value of this put should be the hash.
 * For ops with a `type` of `'vote'`, *before* updating the vote count remove any existing `top!` prefixed key:             `await b.del('top!' + lexint.pack(<current vote count>, 'hex') + '!' + op.hash)`

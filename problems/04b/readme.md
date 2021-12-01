@@ -1,4 +1,4 @@
-# Autobase 2 - Indexing / View
+# Autobase 2 - Linearized Views
 
 In the previous exercise, we saw how Autobase can give you a "causal stream" of messages from N input hypercores, and that this causal stream defines a particular kind of deterministic ordering. Most importantly, we saw how the causal stream treats forks, and how the stream ordering grows stable over time as input nodes become "locked" at specific positions.
 
@@ -72,23 +72,23 @@ const view = base.linearize(indexCore, {
 
 Note that you can modify the `view` directly with `append`, which is just like a normal Hypercore `append`, but you can only do this inside of the `apply` function!
 
-The second exercise for this section involves making a stateful indexer -- an `apply` function that records cumulative information about all the input nodes that have been processed so far. It's definitely trickier, but really highlights the value of these derived views. If you were to share this view with others, they could check the message count by downloading a single block, the latest one!
+The second exercise for this section involves making a stateful view -- an `apply` function that records cumulative information about all the input nodes that have been processed so far. It's definitely trickier, but really highlights the value of these derived views. If you were to share this view with others, they could check the message count by downloading a single block, the latest one!
 
 We extend this concept a lot further in the next exercise -- the rabbit hole goes deeper.
 
 ### Exercises
-1. Add that `apply` function to `linearize` and see how the index Hypercore changes as a result.
-2. __HARD__: Make the map function stateful, such that it includes the total number of messages sent by either A or B in the blocks it records. You can call `index.get` from inside the `apply` function.
+1. Add that `apply` function to `linearize` and see how the output Hypercore changes as a result.
+2. __HARD__: Make the map function stateful, such that it includes the total number of messages sent by either A or B in the blocks it records. You can call `view.get` from inside the `apply` function.
   * For this exercise, feel free to jump straight to the solution if you get stuck.
 
-## (4) Sharing Indexes with Others
+## (4) Sharing Views with Others
 
-In the previous sections we've seen how remote indexes can be used in combination with the apply function to make powerful data structures that are indexed on the fly. However for readers accessing our data structures it's a bad user experience to have to reindex all of the inputs - especially as the Autobase's input Hypercores grow longer and longer over time. We'd prefer a near instant experience like we are used to from most centralised systems, without needing to wait for a long pre-indexing step. Luckily, Autobase's remote indexes solve this for us.
+In the previous sections we've seen how linearized views can be used in combination with the `apply` function to make shareable data structures that are generated on the fly. However for readers accessing our data structures it's a bad user experience to have to regenerate the complete view themselves - especially as the Autobase's input Hypercores grow longer and longer over time. We'd prefer a near instant experience like we are used to from most centralised systems, without needing to wait for a long pre-processing step. Luckily, Autobase's "remote views" solve this for us.
 
-By passing Hypercores representing other peers' indexes to `linearize`, Autobase will piggy-back on those "remote indexes", and only apply the minimal changes needed instead of re-indexing every input from start to finish. Using these remote indexes massively improves the reader-side experience. Say the participants in our chat want to share the chat log with millions of readers -- with remote indexes, those readers will have very little (if any) indexing work to do locally, and they can make use of Hypercore's other cool features, like bandwidth sharing and sparse syncing.
+By passing Hypercores representing other peers' views to `linearize`, Autobase will piggy-back on those remote views, only applying the minimal changes necessary to bring the remote view up-to-date, instead of re-processing every block from start to finish. Using these remote views massively improves the reader-side experience. Say the participants in our chat want to share the chat log with millions of readers -- with remote views, those readers will have very little (if any) view-generation work to do locally, and they can make use of Hypercore's other cool features, like bandwidth sharing and sparse syncing.
 
 ### Exercises
-Let's extend the very first example in this section with a second index that treats the first index as a remote one.
+Let's extend the very first example in this section with a second view that treats the first view as a remote one.
 
 `linearize` behaves differently depending on whether the Hypercores it's given are readable (meaning coming from remote peers) or writable (local Hypercores). If you give it an Array of readable Hypercores, those will be treated as remote views. If the Hypercores are writable, they will be treated as local views, and the complete causal stream will be rebased into them.
 
@@ -103,15 +103,15 @@ const readerView = baseC.linearize([viewCore], {
 await readerView.update()
 ```
 
-The `autocommit` flag is only necessary because we are simulating a remote peer locally, so `viewCore` is writable. We explicitly tell the index to treat `viewCore` as a remote index with that flag.
+The `autocommit` flag is only necessary because we are simulating a remote peer locally, so `viewCore` is writable. We explicitly tell `linearize` to treat `viewCore` as a remote index with that flag.
 
-Notice how the `status` shows that the update didn't add or remove any new nodes. This means that the reader has detected that `viewCore` is completely up-to-date, and so no additional indexing is necessary.
+Notice how the `status` shows that the update didn't add or remove any new nodes. This means that the reader has detected that `viewCore` is completely up-to-date, and so no additional processing is necessary.
 
 ## (5) Sparsely Downloading Views
 
-Views are just Hypercores, and so they share all of Hypercore's nice properties. One particular cool feature is the ability to "sparsely download" blocks on-demand. In the next exercise, we're going to use the indexing approach above to build a Hyperbee, our Hypercore-based [B-Tree](https://en.wikipedia.org/wiki/B-tree) implemention -- with Hyperbee, you can store KV-pairs, and then perform range queries over keys, while only touching a subset of the blocks in the underlying Hypercore.
+Views are just Hypercores, and so they share all of Hypercore's nice properties. One particular cool feature is the ability to "sparsely download" blocks on-demand. In the next exercise, we're going to use the approach from the previous exercise to build a Hyperbee, our Hypercore-based [B-Tree](https://en.wikipedia.org/wiki/B-tree) implemention -- with Hyperbee, you can store KV-pairs, and then perform range queries over keys, while only touching a subset of the blocks in the underlying Hypercore.
 
-Imagine you have an Autobase with many inputs, and there's an indexer that's been doing the heavy lifting, digesting the inputs into a Hyperbee. If a reader adds that view as a remote view, then they can immediately start querying the Hyperbee, only downloading blocks as needed, without needing to do any additional work!
+Imagine you have an Autobase with many inputs, and there's an indexer that's been doing the heavy lifting, digesting the inputs into a Hyperbee view. If a reader adds that view as a remote view, then they can immediately start querying the Hyperbee, only downloading blocks as needed, without needing to do any additional work!
 
 The ability to share and sparsely sync views makes Autobase a lot more useful, because it allows readers to sidestep as much indexing/downloading as possible, so long as there are existing views available on the network.
 

@@ -11,7 +11,7 @@ and viewing the top 10 highest voted posts.
 In addition to Hyperswarm and Autobase we'll also be using Hyperbee.
 
 Hyperbee provides a key-value store abstraction over the top of a Hypercore,
-since an Autobase index is a Hypercore we can pass it into a Hyperbee  
+since an Autobase view is a Hypercore we can pass it into a Hyperbee  
 
 
 ## Utilizing `hrepl`

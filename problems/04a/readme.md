@@ -2,7 +2,7 @@
 
 Now that you've had a crash course in creating and replicate Hypercores between peers using Hyperswarm, let's dive into our newest feature: multiwriter collaboration with Autobase.
 
-Autobase is a new module we've introduced alongside Hypercore v10 that allows you to "rebase together" many Hypercores, perhaps from many different people on different machines, into a single, linearized Hypercore (called a "rebased index", which we'll get to later). Importantly, Autobase ensures that anybody can recreate that linearized Hypercore locally -- the ordering is uniquely defined by the set of input Hypercores passed to Autobase -- and we'll get to why that's important in the next exercise.
+Autobase is a new module we've introduced alongside Hypercore v10 that allows you to "rebase together" many Hypercores, perhaps from many different people on different machines, into a single, linearized Hypercore (called a "linearized view", which we'll get to later). Importantly, Autobase ensures that anybody can recreate that linearized Hypercore locally -- the ordering is uniquely defined by the set of input Hypercores passed to Autobase -- and we'll get to why that's important in the next exercise.
 
 For now, let's go through what ordering means in the context of Autobase by building a simple chat system.
 
@@ -107,8 +107,8 @@ await baseB.append('B8: hello?', [])
 
 The two new forks are at the "tip" of the causal stream, and everything behind B7 remains the same. This property will be extremely useful in the next section, where we show how causal streams can be used to generate indexes over Autobase inputs.
 
-## Next Up: Indexing
+## Next Up: Linearized Views
 
-Now that you've seen how Autobase can generate a deterministic ordering over messages in many input Hypercores, we'll walk through how to make use of that ordering to generate shareable, Hypercore-based indexes over those inputs.
+Now that you've seen how Autobase can generate a deterministic ordering over messages in many input Hypercores, we'll walk through how to make use of that ordering to generate shareable, Hypercore-based views over those inputs.
 
 Continue to [Problem 4b](../04b) when ready.
