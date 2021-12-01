@@ -31,19 +31,19 @@ class Hypernews {
 
   async start () {
     const writer = this.store.get({ name: 'writer' })
-    const autobaseIndex = this.store.get({ name: 'index' })
+    const viewOutput = this.store.get({ name: 'view' })
 
     await writer.ready()
 
     this.name = args.name || writer.key.slice(0, 8).toString('hex')
-    this.autobase = new Autobase([writer], { indexes: autobaseIndex })
+    this.autobase = new Autobase([writer], { outputs: viewOutput })
 
     for (const w of [].concat(args.writers || [])) {
       await this.autobase.addInput(this.store.get(Buffer.from(w, 'hex')))
     }
 
     for (const i of [].concat(args.indexes || [])) {
-      await this.autobase.addDefaultIndex(this.store.get(Buffer.from(i, 'hex')))
+      await this.autobase.addDefaultOutput(this.store.get(Buffer.from(i, 'hex')))
     }
 
     await this.autobase.ready()
