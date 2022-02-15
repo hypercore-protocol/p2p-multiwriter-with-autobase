@@ -12,8 +12,8 @@ console.log(chalk.green('\n(1) Ordering Chat Messages\n'))
   const userB = store.get({ name: 'userB' })
 
   // Make two Autobases with those two users as inputs.
-  const baseA = new Autobase([userA, userB], { input: userA })
-  const baseB = new Autobase([userA, userB], { input: userB })
+  const baseA = new Autobase({ inputs: [userA, userB], localInput: userA })
+  const baseB = new Autobase({ inputs: [userA, userB], localInput: userB })
 
   // Append chat messages and read them out again, using the default options.
   // This simulates two peers who are always completely up-to-date with each others messages.
@@ -36,8 +36,8 @@ console.log(chalk.green('\n(2) Forks and Reordering\n'))
   const userB = store.get({ name: 'userB' })
 
   // Make two Autobases with those two users as inputs.
-  const baseA = new Autobase([userA, userB], { input: userA })
-  const baseB = new Autobase([userA, userB], { input: userB })
+  const baseA = new Autobase({ inputs: [userA, userB], localInput: userA })
+  const baseB = new Autobase({ inputs: [userA, userB], localInput: userB })
 
   // Append chat messages and read them out again, manually specifying empty clocks.
   // This simulates two peers creating independent forks.
@@ -82,8 +82,8 @@ console.log(chalk.green('\n(2) Locking Forks in Time\n'))
   const userB = store.get({ name: 'userB' })
 
   // Make two Autobases with those two users as inputs.
-  const baseA = new Autobase([userA, userB], { input: userA })
-  const baseB = new Autobase([userA, userB], { input: userB })
+  const baseA = new Autobase({ inputs: [userA, userB], localInput: userA })
+  const baseB = new Autobase({ inputs: [userA, userB], localInput: userB })
 
   // (2) Append chat messages and read them out again, manually specifying empty clocks.
   // This simulates two peers creating independent forks.

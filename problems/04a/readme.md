@@ -30,8 +30,8 @@ const userB = store.get({ name: 'userB' })
 
 // Make an Autobase with those two users as inputs.
 
-const baseA = new Autobase([userA, userB], { input: userA })
-const baseB = new Autobase([userA, userB], { input: userB })
+const baseA = new Autobase({ inputs: [userA, userB], localInput: userA })
+const baseB = new Autobase({ inputs: [userA, userB], localInput: userB })
 ```
 
 The Autobase constructor above says "Create an Autobase using `userA` and `userB` as inputs, where my local input is `userA`". The local input will be what's appended to by default in the `append` operations below.
