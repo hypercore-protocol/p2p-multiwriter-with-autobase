@@ -77,7 +77,7 @@ await baseA.append('A1: hmmm. guess not.', [])
 await baseB.append('B1: anybody home?', [])
 
 for await (const node of baseA.createCausalStream()) {
-  console.log(msg.value.toString())
+  console.log(node.value.toString())
 }
 ```
 
