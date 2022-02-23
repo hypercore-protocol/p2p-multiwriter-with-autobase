@@ -90,7 +90,8 @@ class Hypernews {
         }
 
         await b.flush()
-    }})
+      }
+    })
 
     this.bee = new Hyperbee(this.autobase.view, {
       extension: false,
