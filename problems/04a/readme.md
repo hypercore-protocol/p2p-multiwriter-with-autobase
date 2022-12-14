@@ -10,14 +10,14 @@ For now, let's go through what ordering means in the context of Autobase by buil
 
 As with the previous exercises, first create a module with `type: module` and an `index.js` and make sure to install the following dependencies:
 ```
-npm i corestore@next autobase random-access-memory chalk
+npm i corestore autobase random-access-memory chalk
 ```
 
 ## Creating Autobases
 
 Say you have two users, each with their own Hypercores, who want to chat with each other by appending messages to their cores. To get set up, we'll create two Hypercores, and then create one Autobase for each user:
 ```js
-import Hypercore from 'hypercore'
+import Corestore from 'corestore'
 import Autobase from 'autobase'
 import ram from 'random-access-memory'
 

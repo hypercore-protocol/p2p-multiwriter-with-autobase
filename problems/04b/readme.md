@@ -12,7 +12,7 @@ For the following bits, we'll build off of the chat system from the previous exe
 
 As with the previous exercises, first create a module with `type: module` and an `index.js` and make sure to install the following dependencies:
 ```
-npm i corestore@next autobase random-access-memory chalk
+npm i corestore autobase random-access-memory chalk
 ```
 
 If you like, you can just copy over the code you wrote for the previous exercise.

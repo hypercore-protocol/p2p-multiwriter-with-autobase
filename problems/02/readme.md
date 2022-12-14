@@ -12,7 +12,7 @@ Let's try it out.
 First install the main swarm abstraction. It's available as the main hyperswarm package. Again the latest one is released under the next tag.
 
 ```
-npm install hyperswarm@next
+npm install hyperswarm
 ```
 
 Then make a file called `swarm.js` and add the following:
