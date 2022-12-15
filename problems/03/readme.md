@@ -33,7 +33,7 @@ https://github.com/hypercore-protocol/corestore-next
 First install the latest version of Corestore from NPM. Again it's available under the `next` npm tag. The Hypercores this version of Corestore produce are also all the of the latest version (10). If you want to play around with that directly that's also available under the `next` tag on Hypercore.
 
 ```sh
-npm install corestore@next
+npm install corestore
 ```
 
 Now make a file called `corestore.js` and insert the following
@@ -56,7 +56,7 @@ await core.append(Buffer.from('a block'))
 
 1. Try running the above code a couple of times and see that the length of the core increases
 2. Use `await core.get(index)` to read out a block
-3. Use `sameCore = store.get(Buffer.from('the core key'))` to load the Hypercore from public key.
+3. Use `sameCore = store.get(Buffer.from('the core key'))` and `await sameCore.ready()` to load the Hypercore from public key.
 
 ## Exercise 2 - Replicating a Corestore
 

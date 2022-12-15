@@ -17,7 +17,7 @@ Hyperswarm implements this low level API in its DHT module. Each instance of the
 Let's try it out. First install the latest version of the Hyperswarm DHT module. It is available through NPM under the next tag.
 
 ```
-npm install @hyperswarm/dht@next
+npm install @hyperswarm/dht
 ```
 
 Make two files server.js and client.js and add a package.json with `{ "type": "module" }` so ESM loading and top-level await works.
