@@ -63,11 +63,10 @@ class Hypernews {
 
     this.info()
 
-    const self = this
     this.autobase.start({
       unwrap: true,
-      async apply (view, batch) {
-        const b = self.bee.batch({ update: false })
+      async apply (bee, batch) {
+        const b = bee.batch({ update: false })
 
         for (const { value } of batch) {
           const op = JSON.parse(value)
@@ -80,7 +79,7 @@ class Hypernews {
 
           if (op.type === 'vote') {
             const inc = op.up ? 1 : -1
-            const p = await self.bee.get('posts!' + op.hash, { update: false })
+            const p = await bee.get('posts!' + op.hash, { update: false })
 
             if (!p) continue
 
