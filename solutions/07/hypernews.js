@@ -106,13 +106,13 @@ class Hypernews {
 
   info () {
     let localInputHex = this.autobase.localInput.key.toString('hex')
-    console.log('Autobase setup. Use this to run a second instance:')
+    console.log('Autobase setup. Use this to run an additional instance with the current one as an input:')
     console.log()
     console.log('hrepl hypernews.js ' +
       '-n ' + this.name + ' ' +
       this.autobase.inputs.map(i => '-i ' + i.key.toString('hex')).join(' ') + ' ' +
-      this.autobase.outputs.map(i => '-o ' + i.key.toString('hex')).join(' ') +
-      ' --storage ./instance2'
+      this.autobase.outputs.map(o => '-o ' + o.key.toString('hex')).join(' ') +
+      ' --storage ./instanceN'
     )
     console.log()
     console.log('To disable swarming add --no-swarm')
@@ -120,6 +120,7 @@ class Hypernews {
     console.log('Note: for the first instance to accept updates of the second instance, it needs to have the second instance as an input.')
     console.log('This can be achieved by starting it with the -i ' + localInputHex + ' option')
     console.log('or at runtime with: hypernews.autobase.addInput(hypernews.store.get(Buffer.from(\'' + localInputHex + '\', \'hex\')))')
+    console.log()
   }
 
 
