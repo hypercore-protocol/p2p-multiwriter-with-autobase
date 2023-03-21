@@ -9,8 +9,8 @@ import ram from 'random-access-memory'
 
 const args = minimist(process.argv, {
   alias: {
-    writers: 'w',
-    indexes: 'i',
+    inputs: 'i',
+    outputs: 'o',
     storage: 's',
     name: 'n'
   },
@@ -31,19 +31,23 @@ class Hypernews {
 
   async start () {
     const writer = this.store.get({ name: 'writer' })
-    const autobaseIndex = this.store.get({ name: 'index' })
+    const viewOutput = this.store.get({ name: 'view-output' })
 
     await writer.ready()
 
     this.name = args.name || writer.key.slice(0, 8).toString('hex')
-    this.autobase = new Autobase([writer], { indexes: autobaseIndex })
+    this.autobase = new Autobase({
+        inputs: [writer],
+        localInput: writer,
+        outputs: [viewOutput]
+    })
 
-    for (const w of [].concat(args.writers || [])) {
-      await this.autobase.addInput(this.store.get(Buffer.from(w, 'hex')))
+    for (const i of [].concat(args.inputs || [])) {
+      await this.autobase.addInput(this.store.get(Buffer.from(i, 'hex')))
     }
 
-    for (const i of [].concat(args.indexes || [])) {
-      await this.autobase.addDefaultIndex(this.store.get(Buffer.from(i, 'hex')))
+    for (const o of [].concat(args.outputs || [])) {
+      await this.autobase.addOutput(this.store.get(Buffer.from(o, 'hex')))
     }
 
     await this.autobase.ready()
@@ -59,11 +63,10 @@ class Hypernews {
 
     this.info()
 
-    const self = this
-    const view = this.autobase.linearize({
+    this.autobase.start({
       unwrap: true,
-      async apply (batch) {
-        const b = self.bee.batch({ update: false })
+      async apply (bee, batch) {
+        const b = bee.batch({ update: false })
 
         for (const { value } of batch) {
           const op = JSON.parse(value)
@@ -76,7 +79,7 @@ class Hypernews {
 
           if (op.type === 'vote') {
             const inc = op.up ? 1 : -1
-            const p = await self.bee.get('posts!' + op.hash, { update: false })
+            const p = await bee.get('posts!' + op.hash, { update: false })
 
             if (!p) continue
 
@@ -88,29 +91,38 @@ class Hypernews {
         }
 
         await b.flush()
+      },
+      view (core) {
+        return new Hyperbee(core.unwrap(), { // .unwrap() might become redundant if https://github.com/holepunchto/autobase/pull/33 gets merged
+          extension: false,
+          keyEncoding: 'utf-8',
+          valueEncoding: 'json'
+        })
       }
     })
 
-    this.bee = new Hyperbee(view, {
-      extension: false,
-      keyEncoding: 'utf-8',
-      valueEncoding: 'json'
-    })
+    this.bee = this.autobase.view
   }
 
   info () {
-    console.log('Autobase setup. Pass this to run this same setup in another instance:')
+    let localInputHex = this.autobase.localInput.key.toString('hex')
+    console.log('Autobase setup. Use this to run an additional instance with the current one as an input:')
     console.log()
     console.log('hrepl hypernews.js ' +
       '-n ' + this.name + ' ' +
-      this.autobase.inputs.map(i => '-w ' + i.key.toString('hex')).join(' ') + ' ' +
-      this.autobase.defaultOutputs.map(i => '-i ' + i.key.toString('hex')).join(' ')
+      this.autobase.inputs.map(i => '-i ' + i.key.toString('hex')).join(' ') + ' ' +
+      this.autobase.outputs.map(o => '-o ' + o.key.toString('hex')).join(' ') +
+      ' --storage ./instanceN'
     )
     console.log()
-    console.log('To use another storage directory use --storage ./another')
     console.log('To disable swarming add --no-swarm')
     console.log()
+    console.log('Note: for the first instance to accept updates of the second instance, it needs to have the second instance as an input.')
+    console.log('This can be achieved by starting it with the -i ' + localInputHex + ' option')
+    console.log('or at runtime with: hypernews.autobase.addInput(hypernews.store.get(Buffer.from(\'' + localInputHex + '\', \'hex\')))')
+    console.log()
   }
+
 
   async * all () {
     for await (const data of this.bee.createReadStream({ gt: 'posts!', lt: 'posts!~' })) {
