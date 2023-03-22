@@ -10,10 +10,13 @@ console.log(chalk.green('\n(1) The Simplest Possible Index\n'))
   const store = new Corestore(ram)
   const userA = store.get({ name: 'userA' })
   const userB = store.get({ name: 'userB' })
+  const viewCore = store.get({ name: 'view-core' })
+
+  await userA.ready();
 
   // Make two Autobases with those two users as inputs.
-  const baseA = new Autobase([userA, userB], { input: userA })
-  const baseB = new Autobase([userA, userB], { input: userB })
+  const baseA = new Autobase({inputs: [userA, userB], localInput: userA, localOutput: viewCore, eagerUpdate: false })
+  const baseB = new Autobase({inputs: [userA, userB],  localInput: userB })
 
   // Append chat messages and read them out again, using the default options.
   // This simulates two peers who are always completely up-to-date with each others messages.
@@ -22,8 +25,8 @@ console.log(chalk.green('\n(1) The Simplest Possible Index\n'))
   await baseA.append('A1: likewise. fun exercise huh?')
   await baseB.append('B1: yep. great time.')
 
-  const viewCore = store.get({ name: 'view-core' })
-  const view = baseA.linearize(viewCore)
+  baseA.start()
+  const view = baseA.view;
   await view.update()
 
   for (let i = 0; i < view.length; i++) {
@@ -38,6 +41,11 @@ console.log(chalk.green('\n(1) The Simplest Possible Index\n'))
   await view.update()
 
   console.log('\nStatus after the second update:', view.status)
+
+  for (let i = 0; i < view.length; i++) {
+    const node = await view.get(i)
+    console.log(node.value.toString())
+  }
 }
 
 // (2) The Simplest Index, but with Forks
@@ -50,11 +58,12 @@ console.log(chalk.green('\n(2) The Simplest Index, but with Forks\n'))
   const viewCore = store.get({ name: 'view-core' })
 
   // Make two Autobases with those two users as inputs.
-  const baseA = new Autobase([userA, userB], { input: userA })
-  const baseB = new Autobase([userA, userB], { input: userB })
+  const baseA = new Autobase({inputs: [userA, userB], localInput: userA, localOutput: viewCore })
+  const baseB = new Autobase({inputs: [userA, userB],  localInput: userB })
 
   // We can use either Autobase to create the index, so well just pick baseA
-  const view = baseA.linearize(viewCore)
+  baseA.start()
+  const view = baseA.view;
 
   // Append chat messages and read them out again, manually specifying empty clocks.
   // This simulates two peers creating independent forks.
@@ -64,6 +73,10 @@ console.log(chalk.green('\n(2) The Simplest Index, but with Forks\n'))
   await baseB.append('B1: anybody home?', [])
 
   await view.update()
+  for (let i = 0; i < view.length; i++) {
+    const node = await view.get(i)
+    console.log(node.value.toString())
+  }
   console.log(chalk.blue('Index status after the first two independent messages:'), view.status)
 
   // Add 3 more independent messages to A.
@@ -72,6 +85,10 @@ console.log(chalk.green('\n(2) The Simplest Index, but with Forks\n'))
   }
 
   await view.update()
+  for (let i = 0; i < view.length; i++) {
+    const node = await view.get(i)
+    console.log(node.value.toString())
+  }
   console.log(chalk.blue('Index status after A appends 3 more messages:'), view.status)
 
   // Add 5 more independent messages to B. Does its fork move to the beginning or the end?
@@ -80,7 +97,18 @@ console.log(chalk.green('\n(2) The Simplest Index, but with Forks\n'))
   }
 
   await view.update()
+  for (let i = 0; i < view.length; i++) {
+    const node = await view.get(i)
+    console.log(node.value.toString())
+  }
   console.log(chalk.blue('Index status after B appends 5 more messages:'), view.status)
+  await baseA.append(`A5: also trying again... but causally`)
+  await view.update()
+  for (let i = 0; i < view.length; i++) {
+    const node = await view.get(i)
+    console.log(node.value.toString())
+  }
+  console.log(chalk.blue('Index status after A appends 1 more message:'), view.status)
 }
 
 // (3) A Mapping Indexer
@@ -90,10 +118,12 @@ console.log(chalk.green('\n(3) A Mapping Indexer\n'))
   const store = new Corestore(ram)
   const userA = store.get({ name: 'userA' })
   const userB = store.get({ name: 'userB' })
+  const viewCore = store.get({ name: 'view-core' })
+  const secondViewCore = store.get({ name: 'second-view-core' })
 
   // Make two Autobases with those two users as inputs.
-  const baseA = new Autobase([userA, userB], { input: userA })
-  const baseB = new Autobase([userA, userB], { input: userB })
+  const baseA = new Autobase({inputs: [userA, userB], localInput: userA, localOutput: viewCore })
+  const baseB = new Autobase({inputs: [userA, userB],  localInput: userB, localOutput: secondViewCore })
 
   // Append chat messages and read them out again, using the default options.
   // This simulates two peers who are always completely up-to-date with each others messages.
@@ -102,13 +132,14 @@ console.log(chalk.green('\n(3) A Mapping Indexer\n'))
   await baseA.append('A1: likewise. fun exercise huh?')
   await baseB.append('B1: yep. great time.')
 
-  const viewCore = store.get({ name: 'view-core' })
-  const view = baseA.linearize(viewCore, {
+  baseA.start({
     async apply (batch) {
-      batch = batch.map(({ value }) => Buffer.from(value.toString().toUpperCase()))
-      await view.append(batch)
+      const uppercasedBatch = batch.map(({ value }) => Buffer.from(value.toString().toUpperCase()))
+
+      return await baseA.view.append(uppercasedBatch)
     }
   })
+  const view = baseA.view;
   await view.update()
 
   // All the indexed nodes will be uppercased now.
@@ -118,14 +149,15 @@ console.log(chalk.green('\n(3) A Mapping Indexer\n'))
   }
 
   // Make another index that is stateful, and records the total message count alongside the message text.
-  const secondViewCore = store.get({ name: 'second-view-core' })
-  const secondView = baseA.linearize(secondViewCore, {
+  baseB.start({
     async apply (batch) {
+      const view = baseB.view;
+
       let count = 0
 
       // First, we need to get the latest count from the last node in the view.
-      if (secondView.length > 0) { 
-        const lastNode = await secondView.get(secondView.length - 1)
+      if (view.length > 0) { 
+        const lastNode = await view.get(view.length - 1)
         const lastRecord = JSON.parse(lastNode.value.toString())
         count = lastRecord.count
       }
@@ -140,10 +172,10 @@ console.log(chalk.green('\n(3) A Mapping Indexer\n'))
       })
 
       // Finally, append it just like before.
-      await secondView.append(batch)
+      await view.append(batch)
     }
   })
-
+  const secondView = baseB.view;
 
   // Pull all the changes into the new, stateful index.
   await secondView.update()
@@ -162,10 +194,11 @@ console.log(chalk.green('\n(1) Sharing Indexes with Others\n'))
   const store = new Corestore(ram)
   const userA = store.get({ name: 'userA' })
   const userB = store.get({ name: 'userB' })
+  const viewCore = store.get({ name: 'view-core' })
 
   // Make two Autobases with those two users as inputs.
-  const baseA = new Autobase([userA, userB], { input: userA })
-  const baseB = new Autobase([userA, userB], { input: userB })
+  const baseA = new Autobase({inputs: [userA, userB], localInput: userA, localOutput: viewCore })
+  const baseB = new Autobase({inputs: [userA, userB],  localInput: userB })
 
   // Append chat messages and read them out again, using the default options.
   // This simulates two peers who are always completely up-to-date with each others messages.
@@ -174,16 +207,20 @@ console.log(chalk.green('\n(1) Sharing Indexes with Others\n'))
   await baseA.append('A1: likewise. fun exercise huh?')
   await baseB.append('B1: yep. great time.')
 
-  const viewCore = store.get({ name: 'view-core' })
-  const view = baseA.linearize(viewCore)
+  baseA.start()
+  const view = baseA.view;
   await view.update()
 
   // Now we will simulate a "reader" who will use the index above as a remote index.
   // The reader will not be participating in the chat, but will be reading from the index.
-  const baseC = new Autobase([userA, userB]) 
-  const readerView = baseC.linearize([viewCore], {
-    autocommit: false // Ignore this for now
+  const baseC = new Autobase({inputs: [userA, userB], outputs: [viewCore]});
+  baseC.start({
+    eagerUpdate: false, // Ignore this for now
+    async apply (batch) {
+      return await baseC.view.append(batch)
+    }
   })
+  const readerView = baseC.view;
 
   // This will piggy-back off of the work `viewCore` has already done.
   await readerView.update()
